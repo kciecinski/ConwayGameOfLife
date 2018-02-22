@@ -11,29 +11,24 @@ class ConwayGameOfLife:
     play = True
     colors = {1: "black", 0: "white"}
 
+    def zero_grids(self):
+        self.grid = np.zeros((self.n, self.n), dtype=np.int8)
+        self.old_grid = np.zeros((self.n, self.n), dtype=np.int8)
+
     def generate_random(self):
-        self.grid = np.random.randint(2, size=(self.n,self.n))
+        self.grid = np.random.randint(2, size=(self.n, self.n))
         self.old_grid = np.copy(self.grid)
 
     def toad(self):
-        self.grid = np.zeros((self.n, self.n), dtype=np.int8)
-        self.old_grid = np.zeros((self.n, self.n), dtype=np.int8)
-        self.grid[4][4] = 1
-        self.grid[5][4] = 1
-        self.grid[4][5] = 1
-        self.grid[5][3] = 1
-        self.grid[4][3] = 1
-        self.grid[5][2] = 1
-        self.grid[1][2] = 1
-        self.old_grid = np.copy(self.grid)
-        self.update()
+        self.create_elem([[4, 5], [5, 4], [4, 4], [5, 3], [4, 3], [5, 2]])
 
     def blinker(self):
-        self.grid = np.zeros((self.n, self.n), dtype=np.int8)
-        self.old_grid = np.zeros((self.n, self.n), dtype=np.int8)
-        self.grid[4][4] = 1
-        self.grid[6][4] = 1
-        self.grid[5][4] = 1
+        self.create_elem([[4, 4], [6, 4], [5, 4]])
+
+    def create_elem(self, indecies):
+        self.zero_grids()
+        for x in indecies:
+            self.grid[x[0],x[1]] = 1
         self.old_grid = np.copy(self.grid)
         self.update()
 
@@ -78,19 +73,22 @@ canvas = Canvas(master, width=screen_width, height=screen_height)
 canvas.pack()
 
 
+def configure_button(button,color,position):
+    button.configure(width=10, activebackground=color, relief=FLAT)
+    canvas.create_window(position, anchor=NW, window=button)
+
+
 if __name__ == "__main__":
     game = ConwayGameOfLife()
     game.generate_random()
 
     stop_button = Button(text="Stop", command=game.stop, anchor=W)
-    stop_button.configure(width=10, activebackground="red", relief=FLAT)
-    stop_button_window = canvas.create_window(300, 330, anchor=NW, window=stop_button)
+    configure_button(stop_button,'red',(300,300))
+
     blinker_button = Button(text="Blinker", command=game.blinker, anchor=W)
-    blinker_button.configure(width=10, activebackground="#33B5E5", relief=FLAT)
-    blinker_button_window = canvas.create_window(300, 300, anchor=NW, window=blinker_button)
+    configure_button(blinker_button,'lightblue',(300,330))
+
     toad_button = Button(text="Toad", command=game.toad, anchor=W)
-    toad_button.configure(width=10, activebackground="#33B5E5", relief=FLAT)
-    toad_button_window = canvas.create_window(300, 360, anchor=NW, window=toad_button)
-    
+    configure_button(toad_button,'lightblue',(300,360))
     while game.play:
         master.after(5, game.update())
